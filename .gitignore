@@ -1,0 +1,9 @@
+build/
+build-*/
+dist/
+ffmpeg_download/
+vcpkg_installed/
+.vs/
+.vscode/
+*.user
+CMakeUserPresets.json

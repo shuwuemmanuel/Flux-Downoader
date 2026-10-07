@@ -1,0 +1,9 @@
+{
+  "name": "flux-downloader",
+  "version-string": "1.0.0",
+  "description": "Flux Downloader - multi-connection download manager (C++/Qt)",
+  "dependencies": [
+    "curl",
+    "libtorrent"
+  ]
+}
