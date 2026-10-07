@@ -17,6 +17,7 @@
 #include <libtorrent/add_torrent_params.hpp>
 #include <libtorrent/alert_types.hpp>
 #include <libtorrent/error_code.hpp>
+#include <libtorrent/load_torrent.hpp>
 #include <libtorrent/magnet_uri.hpp>
 #include <libtorrent/session.hpp>
 #include <libtorrent/settings_pack.hpp>
@@ -101,6 +102,17 @@ lt::settings_pack makePack(SettingsManager* s)
     pack.set_int(lt::settings_pack::active_seeds, 8);
     pack.set_int(lt::settings_pack::alert_mask, lt::alert_category::error | lt::alert_category::storage);
     return pack;
+}
+
+// load_torrent_file() exists in both libtorrent 2.0 and 2.1 (2.1 dropped the
+// torrent_info(path, error_code) constructor).
+lt::add_torrent_params loadTorrentFile(const QString& path)
+{
+    try {
+        return lt::load_torrent_file(path.toStdString());
+    } catch (const std::exception& e) {
+        throw std::runtime_error(std::string("Could not read .torrent file: ") + e.what());
+    }
 }
 
 QVector<TorrentFileInfo> extractFiles(const lt::torrent_handle& h, const lt::torrent_info& info)
@@ -217,10 +229,8 @@ QString TorrentEngine::addTorrentFile(const QString& torrentPath, const QString&
 {
     if (!d->session)
         throw std::runtime_error("Torrent engine unavailable.");
-    lt::error_code ec;
-    auto info = std::make_shared<lt::torrent_info>(torrentPath.toStdString(), ec);
-    if (ec)
-        throw std::runtime_error("Could not read .torrent file: " + ec.message());
+    lt::add_torrent_params params = loadTorrentFile(torrentPath);
+    const auto info = params.ti;  // shared_ptr<const torrent_info> on 2.1
 
     // Keep a private copy so the torrent can be restored after a restart even
     // if the original file is moved or deleted.
@@ -228,8 +238,6 @@ QString TorrentEngine::addTorrentFile(const QString& torrentPath, const QString&
     const QString copy = QDir(torrentStoreDir()).filePath(tid + ".torrent");
     QFile::copy(torrentPath, copy);
 
-    lt::add_torrent_params params;
-    params.ti = info;
     try {
         addParams(d.get(), std::move(params), savePath, copy, tid, [&](TorrentWrapper& w) {
             w.name = QString::fromStdString(info->name());
@@ -267,13 +275,10 @@ void TorrentEngine::restoreSession()
         try {
             lt::error_code ec;
             lt::add_torrent_params params;
-            std::shared_ptr<lt::torrent_info> info;
-            if (source.startsWith(QLatin1String("magnet:"), Qt::CaseInsensitive)) {
+            if (source.startsWith(QLatin1String("magnet:"), Qt::CaseInsensitive))
                 params = lt::parse_magnet_uri(source.toStdString(), ec);
-            } else {
-                info = std::make_shared<lt::torrent_info>(source.toStdString(), ec);
-                params.ti = info;
-            }
+            else
+                params = loadTorrentFile(source);  // throws -> skipped below
             if (ec)
                 continue;
             addParams(d.get(), std::move(params), savePath, source, id, [&](TorrentWrapper& w) {
