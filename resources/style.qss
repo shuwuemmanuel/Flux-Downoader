@@ -1,0 +1,185 @@
+/* Flux Downloader - "Aqua" theme, inspired by classic macOS / Apple UI */
+
+* {
+    font-family: -apple-system, "SF Pro Text", "Helvetica Neue", "Segoe UI", sans-serif;
+    font-size: 13px;
+    color: #1d1d1f;
+}
+
+QMainWindow, QDialog {
+    background-color: #f5f5f7;
+}
+
+/* ---- Toolbar ---- */
+QToolBar {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                 stop:0 #fbfbfd, stop:1 #e9e9ec);
+    border-bottom: 1px solid #d2d2d7;
+    spacing: 6px;
+    padding: 6px;
+}
+
+QToolButton {
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 6px 10px;
+}
+QToolButton:hover {
+    background: rgba(0, 122, 255, 0.12);
+    border: 1px solid rgba(0, 122, 255, 0.25);
+}
+QToolButton:pressed {
+    background: rgba(0, 122, 255, 0.22);
+}
+
+/* ---- Sidebar ---- */
+QListWidget#sidebar {
+    background: #eef0f3;
+    border: none;
+    border-right: 1px solid #d2d2d7;
+    padding-top: 8px;
+    outline: 0;
+}
+QListWidget#sidebar::item {
+    padding: 8px 14px;
+    border-radius: 8px;
+    margin: 2px 8px;
+}
+QListWidget#sidebar::item:selected {
+    background: #007AFF;
+    color: white;
+}
+QListWidget#sidebar::item:hover:!selected {
+    background: rgba(0, 122, 255, 0.10);
+}
+
+/* ---- Table ---- */
+QTableWidget {
+    background: #ffffff;
+    alternate-background-color: #f7f7f9;
+    gridline-color: #e5e5ea;
+    border: none;
+    selection-background-color: rgba(0, 122, 255, 0.18);
+    selection-color: #1d1d1f;
+}
+QHeaderView::section {
+    background: #f0f0f2;
+    color: #6e6e73;
+    border: none;
+    border-bottom: 1px solid #d2d2d7;
+    padding: 6px;
+    font-weight: 600;
+}
+QTableWidget::item {
+    padding: 4px;
+}
+
+/* ---- Progress bar ---- */
+QProgressBar {
+    border: 1px solid #d2d2d7;
+    border-radius: 6px;
+    background: #eaeaec;
+    text-align: center;
+    height: 14px;
+}
+QProgressBar::chunk {
+    border-radius: 6px;
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                 stop:0 #34aaff, stop:1 #007AFF);
+}
+
+/* ---- Buttons ---- */
+QPushButton {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                 stop:0 #ffffff, stop:1 #ececee);
+    border: 1px solid #c7c7cc;
+    border-radius: 8px;
+    padding: 6px 16px;
+}
+QPushButton:hover {
+    border: 1px solid #007AFF;
+}
+QPushButton:pressed {
+    background: #e2e2e5;
+}
+QPushButton#primary {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                 stop:0 #34aaff, stop:1 #007AFF);
+    color: white;
+    border: none;
+    font-weight: 600;
+}
+QPushButton#primary:hover {
+    background: #1e90ff;
+}
+
+/* ---- Inputs ---- */
+QLineEdit, QComboBox, QSpinBox, QTextEdit {
+    background: white;
+    border: 1px solid #c7c7cc;
+    border-radius: 8px;
+    padding: 6px 8px;
+    selection-background-color: #007AFF;
+}
+QLineEdit:focus, QComboBox:focus, QSpinBox:focus {
+    border: 1px solid #007AFF;
+}
+
+/* ---- Status bar ---- */
+QStatusBar {
+    background: #f5f5f7;
+    border-top: 1px solid #d2d2d7;
+}
+
+/* ---- Tabs ---- */
+QTabWidget::pane {
+    border: 1px solid #d2d2d7;
+    border-radius: 8px;
+    top: -1px;
+}
+QTabBar::tab {
+    background: #ececee;
+    border: 1px solid #d2d2d7;
+    border-bottom: none;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    padding: 6px 14px;
+    margin-right: 2px;
+}
+QTabBar::tab:selected {
+    background: #ffffff;
+    font-weight: 600;
+}
+
+/* ---- Scrollbars ---- */
+QScrollBar:vertical {
+    background: transparent;
+    width: 10px;
+}
+QScrollBar::handle:vertical {
+    background: #c7c7cc;
+    border-radius: 5px;
+    min-height: 24px;
+}
+QScrollBar::handle:vertical:hover {
+    background: #a8a8ad;
+}
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    height: 0px;
+}
+
+QMenu {
+    background: #fbfbfd;
+    border: 1px solid #d2d2d7;
+    border-radius: 8px;
+    padding: 4px;
+}
+QMenu::item {
+    padding: 6px 20px;
+    border-radius: 6px;
+}
+QMenu::item:selected {
+    background: #007AFF;
+    color: white;
+}

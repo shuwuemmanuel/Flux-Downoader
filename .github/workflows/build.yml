@@ -1,0 +1,74 @@
+name: Build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  linux:
+    name: Linux build + tests
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            qt6-base-dev libcurl4-openssl-dev libtorrent-rasterbar-dev cmake ninja-build
+
+      - name: Configure
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DFLUX_BUILD_TESTS=ON
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Test
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: ctest --test-dir build --output-on-failure
+
+  windows:
+    name: Windows build
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.7.3'
+          arch: 'win64_msvc2019_64'
+          cache: true
+
+      - name: Configure (vcpkg installs libcurl + libtorrent from vcpkg.json)
+        shell: pwsh
+        run: >
+          cmake -S . -B build -G "Visual Studio 17 2022" -A x64
+          -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
+          -DVCPKG_TARGET_TRIPLET=x64-windows
+
+      - name: Build
+        run: cmake --build build --config Release --parallel
+
+      - name: Package
+        shell: pwsh
+        run: |
+          $dist = "dist/FluxDownloader"
+          New-Item -ItemType Directory -Force -Path $dist | Out-Null
+          Copy-Item build/Release/*.exe $dist
+          Copy-Item build/Release/*.dll $dist -ErrorAction SilentlyContinue
+          & "$env:QT_ROOT_DIR/bin/windeployqt.exe" --release --no-translations --no-opengl-sw "$dist/FluxDownloader.exe"
+          Copy-Item -Recurse chrome_extension "$dist/chrome_extension"
+          Copy-Item scripts/setup_extension.bat, scripts/diagnose_extension.bat $dist
+          Invoke-WebRequest -Uri 'https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe' -OutFile "$dist/yt-dlp.exe"
+          Invoke-WebRequest -Uri 'https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip' -OutFile ffmpeg.zip
+          Expand-Archive ffmpeg.zip -DestinationPath ffmpeg
+          Get-ChildItem ffmpeg -Recurse -Include ffmpeg.exe, ffprobe.exe | Copy-Item -Destination $dist
+
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: FluxDownloader-windows-x64
+          path: dist/FluxDownloader
