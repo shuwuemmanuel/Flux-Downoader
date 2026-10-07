@@ -106,7 +106,12 @@ lt::settings_pack makePack(SettingsManager* s)
 QVector<TorrentFileInfo> extractFiles(const lt::torrent_handle& h, const lt::torrent_info& info)
 {
     QVector<TorrentFileInfo> files;
+    // libtorrent 2.1 replaced files() (now deprecated) with layout().
+#if LIBTORRENT_VERSION_MAJOR > 2 || (LIBTORRENT_VERSION_MAJOR == 2 && LIBTORRENT_VERSION_MINOR >= 1)
+    const lt::file_storage& fs = info.layout();
+#else
     const lt::file_storage& fs = info.files();
+#endif
     std::vector<lt::download_priority_t> prios;
     if (h.is_valid())
         prios = h.get_file_priorities();
